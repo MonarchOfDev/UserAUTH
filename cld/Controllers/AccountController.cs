@@ -83,6 +83,7 @@ namespace cld.Controllers
                     if (customerProfile != null && customerProfile.Password == model.Password)
                     {
                         HttpContext.Session.SetString("UserProfile", customerProfile.RowKey);
+                        _accountLogger.LogInformation("User Login"+customerProfile.Name);
                         return RedirectToAction("Dashboard", "Home"); // Ensure this action exists
                     }
 
