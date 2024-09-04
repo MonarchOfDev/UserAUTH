@@ -1,3 +1,6 @@
+using Microsoft.Extensions.Logging.ApplicationInsights;
+using Microsoft.Extensions.Logging.AzureAppServices;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -9,6 +12,14 @@ builder.Services.AddSession(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
+builder.Logging.AddAzureWebAppDiagnostics();
+builder.Services.Configure<AzureFileLoggerOptions>(options =>
+{
+    options.FileName = "logs-";
+    options.FileSizeLimit = 50 + 1024;
+    options.RetainedFileCountLimit = 5;
+});
+
 
 var app = builder.Build();
 

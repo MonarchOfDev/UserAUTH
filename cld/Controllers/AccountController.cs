@@ -9,13 +9,16 @@ namespace cld.Controllers
     public class AccountController : Controller
     {
         private readonly CloudTable _customerProfileTable;
+        private readonly ILogger<AccountController> _accountLogger;
 
-        public AccountController()
+        public AccountController(ILogger<AccountController> logger)
         {
             var storageAccount = CloudStorageAccount.Parse("DefaultEndpointsProtocol=https;AccountName=mhleng;AccountKey=gTXLILx+IXsyfzbEYbfHUqJI0e8j7bfLDhWtHdtSoHOm0Fa+OxGEECmqRb1M9r07bR2aQQRY31t++ASt2Zooyw==;EndpointSuffix=core.windows.net");
             var tableClient = storageAccount.CreateCloudTableClient(new TableClientConfiguration());
             _customerProfileTable = tableClient.GetTableReference("CustomerProfile");
             _customerProfileTable.CreateIfNotExists();
+            _accountLogger = logger;
+
         }
 
         [HttpGet]
@@ -43,6 +46,7 @@ namespace cld.Controllers
                 {
                     await _customerProfileTable.ExecuteAsync(insertOperation);
                     HttpContext.Session.SetString("UserProfile", customerProfile.RowKey);
+                    _accountLogger.LogInformation("New User Registered");
                     return RedirectToAction("Dashboard", "Home");
                 }
                 catch (StorageException ex)
